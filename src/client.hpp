@@ -14,6 +14,8 @@
 
 #include "oatpp/core/macro/codegen.hpp"
 #include "dto/api_request_dto.hpp"
+#include "dto/api_response_dto.hpp"
+
 #include <map>
 
 namespace imouse {
@@ -37,7 +39,15 @@ namespace imouse {
          */
         [[nodiscard]] auto list_groups() const -> std::map<std::string, std::string>;
 
+        auto list_devices() const -> std::map<std::string, std::string>;
+
     private:
+
+        template<typename T>
+        auto assert_res_dto_status(const oatpp::Object<dto::api_response_dto<T>>& dto) const -> void {
+            if (dto->status != 0) throw std::runtime_error(std::format("invalid api response status: {}, message: {}", *dto->status, *dto->msg));
+        }
+
         std::shared_ptr<oatpp::parser::json::mapping::ObjectMapper> obj_mapper;
 
         std::shared_ptr<oatpp::web::client::RequestExecutor> executor;

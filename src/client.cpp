@@ -20,7 +20,9 @@ namespace imouse {
         req_dto->fun = "get_group_list";
         req_dto->msgid = 0;
         const auto res = this->api_client->list_groups(req_dto);
-        for (const auto res_dto = res->readBodyToDto<oatpp::Object<dto::list_groups_response_dto> >(this->obj_mapper); const auto &[gid,group_dto]: *res_dto->data) {
+        const auto res_dto = res->readBodyToDto<oatpp::Object<dto::list_groups_response_dto> >(this->obj_mapper);
+        this->assert_res_dto_status(res_dto);
+        for ( const auto &[gid,group_dto]: *res_dto->data) {
             devices.emplace(gid, group_dto->name);
         }
         return devices;
