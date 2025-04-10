@@ -23,6 +23,9 @@
 
 
 namespace imouse {
+
+    class
+
     class imouse_client {
 #include OATPP_CODEGEN_BEGIN(ApiClient)
 
