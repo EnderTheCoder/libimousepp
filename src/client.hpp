@@ -4,6 +4,9 @@
 
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
+
+#include <map>
+
 #include <oatpp-curl/RequestExecutor.hpp>
 
 #include "oatpp/web/client/HttpRequestExecutor.hpp"
@@ -15,8 +18,9 @@
 #include "oatpp/core/macro/codegen.hpp"
 #include "dto/api_request_dto.hpp"
 #include "dto/api_response_dto.hpp"
+#include "dto/device_dto.hpp"
 
-#include <map>
+
 
 namespace imouse {
     class imouse_client {
@@ -26,6 +30,8 @@ namespace imouse {
             API_CLIENT_INIT(imouse_api_client)
             API_CALL("GET", "post", list_groups,
                      BODY_DTO(Object<dto::list_groups_request_dto>, body))
+            API_CALL("GET", "post", list_devices,
+                     BODY_DTO(Object<dto::non_data_request_dto>, body))
         };
 
 #include OATPP_CODEGEN_END(ApiClient)
@@ -39,13 +45,13 @@ namespace imouse {
          */
         [[nodiscard]] auto list_groups() const -> std::map<std::string, std::string>;
 
-        auto list_devices() const -> std::map<std::string, std::string>;
+        auto list_devices() const -> std::map<std::string, oatpp::Object<dto::device_dto>>;
 
     private:
 
         template<typename T>
         auto assert_res_dto_status(const oatpp::Object<dto::api_response_dto<T>>& dto) const -> void {
-            if (dto->status != 0) throw std::runtime_error(std::format("invalid api response status: {}, message: {}", *dto->status, *dto->msg));
+            if (dto->status != 0) throw std::runtime_error(std::format("invalid api response status: {}, message: {}", *dto->status, *dto->message));
         }
 
         std::shared_ptr<oatpp::parser::json::mapping::ObjectMapper> obj_mapper;

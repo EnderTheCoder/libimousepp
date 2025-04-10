@@ -28,6 +28,20 @@ namespace imouse {
         return devices;
     }
 
+    auto imouse_client::list_devices() const -> std::map<std::string, oatpp::Object<dto::device_dto>> {
+        std::map<std::string, oatpp::Object<dto::device_dto>> devices = {};
+        const auto req_dto = dto::non_data_request_dto::createShared();
+        req_dto->fun = "get_device_list";
+        req_dto->msgid = 0;
+        const auto res = this->api_client->list_devices(req_dto);
+        const auto res_dto = res->readBodyToDto<oatpp::Object<dto::list_devices_response_dto>>(this->obj_mapper);
+        this->assert_res_dto_status(res_dto);
+        for (const auto &[device_id, device_dto]: *res_dto->data) {
+            devices.emplace(device_id, device_dto);
+        }
+        return devices;
+    }
+
     std::shared_ptr<oatpp::web::client::RequestExecutor> imouse_client::create_curl_executor(
         const std::string &base_url) {
         OATPP_LOGD("App", "Using oatpp-curl RequestExecutor.");

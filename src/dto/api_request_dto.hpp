@@ -21,8 +21,8 @@ namespace imouse::dto {
 
         DTO_FIELD(oatpp::Int32, msgid) = 0;
     };
-
-    typedef api_request_dto<oatpp::Object<oatpp::DTO> > list_groups_request_dto;
+    typedef api_request_dto<oatpp::Object<oatpp::DTO>> non_data_request_dto;
+    typedef non_data_request_dto list_groups_request_dto;
 }
 
 #include OATPP_CODEGEN_END(DTO)
