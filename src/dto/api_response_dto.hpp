@@ -8,6 +8,7 @@
 
 #include "group_dto.hpp"
 #include "device_dto.hpp"
+#include "device_id_dto.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/Types.hpp"
 #include OATPP_CODEGEN_BEGIN(DTO)
@@ -29,7 +30,7 @@ namespace imouse::dto {
     };
     typedef api_response_dto<oatpp::UnorderedFields<oatpp::Object<group_dto> > > list_groups_response_dto;
     typedef api_response_dto<oatpp::UnorderedFields<oatpp::Object<device_dto>>> list_devices_response_dto;
-
+    typedef api_response_dto<oatpp::Object<device_id_dto>> device_id_response_dto;
 }
 
 #include OATPP_CODEGEN_END(DTO)
