@@ -39,7 +39,7 @@ namespace imouse {
             if (size == 0) {
                 const auto buffer_size = buffer.getCurrentPosition();
                 buffer.setCurrentPosition(0);
-                const auto bytes = std::span{buffer.getData(), static_cast<std::size_t>(buffer_size)};
+                const auto bytes = std::span{reinterpret_cast<std::byte*>(buffer.getData()), static_cast<std::size_t>(buffer_size)};
                 if (buffer_size < 265) {
                     throw std::invalid_argument(std::format("expecting frame buffer size to be larger than 265, got {}",
                                                             buffer_size));
@@ -53,7 +53,7 @@ namespace imouse {
                 std::reverse_copy(bytes.data() + 261, bytes.data() + 265, jpg_buffer.begin());
                 jpg = *reinterpret_cast<const int32_t *>(jpg_buffer.data());
 
-                const auto img_buffer = std::vector<std::byte>(bytes.data() + 265, bytes.data() + buffer_size);
+                const auto img_buffer = std::vector(bytes.data() + 265, bytes.data() + buffer_size);
             } else if (size > 0) {
                 buffer.writeSimple(data, size);
             }

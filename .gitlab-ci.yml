@@ -1,0 +1,61 @@
+stages:
+  - env
+  - build
+  - publish
+  - deploy
+
+build-linux-job:
+  stage: build
+  image: enderthecoder/libimousepp
+  script:
+    - mkdir build-linux
+    - cd build-linux
+    - cmake -G "Ninja Multi-Config"  ..
+    - cmake --build . -j --config Release
+  artifacts:
+    name: libimouse++-${CI_PIPELINE_ID}-linux-x64
+    paths:
+      - build-linux/Release/libimouse++.a
+    expire_in: 14 days
+  tags:
+    - docker
+
+build-windows-job:
+  stage: build
+  script:
+    - mkdir build-windows
+    - cd build-windows
+    - cmake ..
+    - cmake --build . --config Release
+  artifacts:
+    name: libimouse++-${CI_PIPELINE_ID}-windows-x64
+    paths:
+      - build-windows/Release/imouse++.lib
+    expire_in: 14 days
+  tags:
+    - windows
+
+build-docker-job:
+  stage: env
+  script:
+    - docker build --pull -t enderthecoder/libimousepp:latest .
+  tags:
+    - linux
+
+publish-docker-job:
+  stage: publish
+  script:
+    - docker push enderthecoder/libimousepp
+  tags:
+    - linux
+
+deploy-windows-job:
+  stage: deploy
+  script:
+    - mkdir deploy-windows
+    - cd deploy-windows
+    - cmake ..
+    - cmake --build . --config Release
+    - cmake --install .
+  tags:
+    - windows
