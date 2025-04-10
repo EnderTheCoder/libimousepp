@@ -35,7 +35,7 @@ namespace imouse {
          * list all groups
          * @return gid to group_name std::map
          */
-        auto list_groups() const -> std::map<std::string, std::string>;
+        [[nodiscard]] auto list_groups() const -> std::map<std::string, std::string>;
 
     private:
         std::shared_ptr<oatpp::parser::json::mapping::ObjectMapper> obj_mapper;
