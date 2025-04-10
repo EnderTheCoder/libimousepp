@@ -54,7 +54,6 @@ namespace imouse {
         auto emplace_frame_callback(const std::string &device_id, std::function<void(std::vector<std::byte>)> cb);
 
     private:
-
         friend class imouse_device_client;
 
         template<typename T>
@@ -87,7 +86,7 @@ namespace imouse {
 
         auto device_id() const -> std::string;
 
-        auto start_streaming() const -> void;
+        auto start_streaming(int interval = 1, bool jpg = true) const -> void;
 
         auto stop_streaming() const -> void;
 

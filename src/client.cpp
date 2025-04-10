@@ -76,12 +76,12 @@ namespace imouse {
         return device_id_;
     }
 
-    auto imouse_device_client::start_streaming() const -> void {
+    auto imouse_device_client::start_streaming(const int interval, const bool jpg) const -> void {
         const auto req_dto = dto::start_streaming_request::createShared();
         req_dto->fun = "loop_device_screenshot";
         req_dto->msgid = 0;
-        req_dto->data->isjpg = true;
-        req_dto->data->time = 1;
+        req_dto->data->isjpg = jpg;
+        req_dto->data->time = interval;
         req_dto->data->deviceid = this->device_id_;
         const auto res = this->node_client->api_client->start_streaming(req_dto);
         const auto res_dto = res->readBodyToDto<oatpp::Object<dto::device_id_response_dto> >(
