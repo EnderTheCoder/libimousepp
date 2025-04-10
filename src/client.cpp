@@ -5,8 +5,64 @@
 #include "client.hpp"
 #include "dto/api_request_dto.hpp"
 #include "dto/api_response_dto.hpp"
+#include <algorithm>
 
 namespace imouse {
+    void imouse_node_client::imouse_ws_instance_listener::onAfterCreate(const WebSocket &socket,
+                                                                        const std::shared_ptr<const ParameterMap> &
+                                                                        params) {
+        const auto listener = std::make_shared<imouse_ws_listener>();
+        socket.setListener(listener);
+    }
+
+    void imouse_node_client::imouse_ws_instance_listener::onBeforeDestroy(const WebSocket &socket) {
+    }
+
+    void imouse_node_client::imouse_ws_listener::onPing(const WebSocket &socket, const oatpp::String &message) {
+    }
+
+    void imouse_node_client::imouse_ws_listener::onPong(const WebSocket &socket, const oatpp::String &message) {
+    }
+
+    void imouse_node_client::imouse_ws_listener::onClose(const WebSocket &socket, v_uint16 code,
+                                                         const oatpp::String &message) {
+    }
+
+    void imouse_node_client::imouse_ws_listener::readMessage(const WebSocket &socket, const v_uint8 opcode,
+                                                             const p_char8 data,
+                                                             const oatpp::v_io_size size) {
+        if (opcode == oatpp::websocket::Frame::OPCODE_CLOSE) {
+            socket.sendClose();
+            return;
+        }
+        try {
+            if (size == 0) {
+                const auto buffer_size = buffer.getCurrentPosition();
+                buffer.setCurrentPosition(0);
+                const auto bytes = std::span{buffer.getData(), static_cast<std::size_t>(buffer_size)};
+                if (buffer_size < 265) {
+                    throw std::invalid_argument(std::format("expecting frame buffer size to be larger than 265, got {}",
+                                                            buffer_size));
+                }
+                const auto deviceid_data = reinterpret_cast<const char *>(bytes.data());
+                std::string deviceid(deviceid_data, 261);
+                deviceid = deviceid.c_str();
+
+                int jpg = 0;
+                std::array<std::byte, 4> jpg_buffer;
+                std::reverse_copy(bytes.data() + 261, bytes.data() + 265, jpg_buffer.begin());
+                jpg = *reinterpret_cast<const int32_t *>(jpg_buffer.data());
+
+                const auto img_buffer = std::vector<std::byte>(bytes.data() + 265, bytes.data() + buffer_size);
+            } else if (size > 0) {
+                buffer.writeSimple(data, size);
+            }
+        } catch (const std::exception &e) {
+            OATPP_LOGE("[imouse::imouse_node_client::imouse_ws_listener::readMessage()]",
+                       "Error while reading message: %s", e.what())
+        }
+    }
+
     imouse_node_client::imouse_node_client(const std::string &base_url) {
         this->obj_mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
         this->executor = create_curl_executor(base_url);

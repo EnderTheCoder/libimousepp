@@ -14,6 +14,8 @@
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/web/client/ApiClient.hpp"
+#include "oatpp-websocket/ConnectionHandler.hpp"
+#include "oatpp-websocket/WebSocket.hpp"
 
 #include "oatpp/core/macro/codegen.hpp"
 #include "dto/api_request_dto.hpp"
@@ -39,6 +41,27 @@ namespace imouse {
         };
 
 #include OATPP_CODEGEN_END(ApiClient)
+
+        class imouse_ws_instance_listener final : public oatpp::websocket::ConnectionHandler::SocketInstanceListener {
+        public:
+            void onAfterCreate(const WebSocket &socket, const std::shared_ptr<const ParameterMap> &params) override;
+
+            void onBeforeDestroy(const WebSocket &socket) override;
+        };
+
+        class imouse_ws_listener final : public oatpp::websocket::WebSocket::Listener {
+        public:
+            void onPing(const WebSocket &socket, const oatpp::String &message) override;
+
+            void onPong(const WebSocket &socket, const oatpp::String &message) override;
+
+            void onClose(const WebSocket &socket, v_uint16 code, const oatpp::String &message) override;
+
+            void readMessage(const WebSocket &socket, v_uint8 opcode, p_char8 data, oatpp::v_io_size size) override;
+
+        private:
+            oatpp::data::stream::BufferOutputStream buffer;
+        };
 
     public:
         explicit imouse_node_client(const std::string &base_url);
